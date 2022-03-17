@@ -1,8 +1,8 @@
-importScripts('/uv/uv.bundle.js');
-importScripts('/uv/uv.config.js');
+importScripts('/palladium/palladium.bundle.js');
+importScripts('/palladium/palladium.config.js');
 
-class UVServiceWorker extends EventEmitter {     
-    constructor(config = __uv$config) {
+class PalladiumServiceWorker extends EventEmitter {     
+    constructor(config = __palladium$config) {
         super();
         if (!config.bare) config.bare = '/bare/';
         this.addresses = typeof config.bare === 'string' ? [ new URL(config.bare, location) ] : config.bare.map(str => new URL(str, location));
@@ -144,7 +144,7 @@ class UVServiceWorker extends EventEmitter {
                 switch(request.destination) {
                     case 'script':
                     case 'worker':
-                        responseCtx.body = `if (!self.__uv && self.importScripts) importScripts('${__uv$config.bundle}', '${__uv$config.config}', '${__uv$config.handler}');\n`;
+                        responseCtx.body = `if (!self.__palladium && self.importScripts) importScripts('${__palladium$config.bundle}', '${__palladium$config.config}', '${__palladium$config.handler}');\n`;
                         responseCtx.body += ultraviolet.js.rewrite(
                             await response.text()
                         );
@@ -214,7 +214,7 @@ class UVServiceWorker extends EventEmitter {
     static Ultraviolet = Ultraviolet;
 };
 
-self.UVServiceWorker = UVServiceWorker;
+self.PalladiumServiceWorker = PalladiumServiceWorker;
 
 
 class ResponseContext {

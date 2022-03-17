@@ -35757,7 +35757,7 @@ function injectHead(ctx) {
     });
 };
 
-function createInjection(handler = '/uv.handler.js', bundle = '/uv.bundle.js', config = '/uv.config.js', cookies = '', referrer = '') {
+function createInjection(handler = '/palladium.handler.js', bundle = '/palladium.bundle.js', config = '/palladium.config.js', cookies = '', referrer = '') {
     return [
         {
             tagName: 'script',
@@ -35765,12 +35765,12 @@ function createInjection(handler = '/uv.handler.js', bundle = '/uv.bundle.js', c
             childNodes: [
                 {
                     nodeName: '#text',
-                    value: `window.__uv$cookies = atob("${btoa(cookies)}");\nwindow.__uv$referrer = atob("${btoa(referrer)}");`
+                    value: `window.__palladium$cookies = atob("${btoa(cookies)}");\nwindow.__palladium$referrer = atob("${btoa(referrer)}");`
                 },
             ],
             attrs: [
                 {
-                    name: '__uv-script',
+                    name: '__palladium-script',
                     value: '1',
                     skip: true,
                 }
@@ -35784,7 +35784,7 @@ function createInjection(handler = '/uv.handler.js', bundle = '/uv.bundle.js', c
             attrs: [
                 { name: 'src', value: bundle, skip: true },
                 {
-                    name: '__uv-script',
+                    name: '__palladium-script',
                     value: '1',
                     skip: true,
                 }
@@ -35797,7 +35797,7 @@ function createInjection(handler = '/uv.handler.js', bundle = '/uv.bundle.js', c
             attrs: [
                 { name: 'src', value: config, skip: true },
                 {
-                    name: '__uv-script',
+                    name: '__palladium-script',
                     value: '1',
                     skip: true,
                 }
@@ -35810,7 +35810,7 @@ function createInjection(handler = '/uv.handler.js', bundle = '/uv.bundle.js', c
             attrs: [
                 { name: 'src', value: handler, skip: true },
                 {
-                    name: '__uv-script',
+                    name: '__palladium-script',
                     value: '1',
                     skip: true,
                 }
@@ -35893,7 +35893,7 @@ function property(ctx) {
 
         if (type === 'rewrite' && computedProperty(node)) {
             data.changes.push({
-                node: '__uv.$wrap((',
+                node: '__palladium.$wrap((',
                 start: node.property.start,
                 end: node.property.start,
             })
@@ -35907,28 +35907,28 @@ function property(ctx) {
     
         };
     
-        if (!node.computed && node.property.name === 'location' && type === 'rewrite' || node.property.name === '__uv$location' && type === 'source') {
+        if (!node.computed && node.property.name === 'location' && type === 'rewrite' || node.property.name === '__palladium$location' && type === 'source') {
             data.changes.push({
                 start: node.property.start,
                 end: node.property.end,
-                node: type === 'rewrite' ? '__uv$setSource(__uv).__uv$location' : 'location'
+                node: type === 'rewrite' ? '__palladium$setSource(__palladium).__palladium$location' : 'location'
             });
         };
 
 
-        if (!node.computed && node.property.name === 'top' && type === 'rewrite' || node.property.name === '__uv$top' && type === 'source') {
+        if (!node.computed && node.property.name === 'top' && type === 'rewrite' || node.property.name === '__palladium$top' && type === 'source') {
             data.changes.push({
                 start: node.property.start,
                 end: node.property.end,
-                node: type === 'rewrite' ? '__uv$setSource(__uv).__uv$top' : 'top'
+                node: type === 'rewrite' ? '__palladium$setSource(__palladium).__palladium$top' : 'top'
             });
         };
 
-        if (!node.computed && node.property.name === 'parent' && type === 'rewrite' || node.property.name === '__uv$parent' && type === 'source') {
+        if (!node.computed && node.property.name === 'parent' && type === 'rewrite' || node.property.name === '__palladium$parent' && type === 'source') {
             data.changes.push({
                 start: node.property.start,
                 end: node.property.end,
-                node: type === 'rewrite' ? '__uv$setSource(__uv).__uv$parent' : 'parent'
+                node: type === 'rewrite' ? '__palladium$setSource(__palladium).__palladium$parent' : 'parent'
             });
         };
 
@@ -35937,20 +35937,20 @@ function property(ctx) {
             data.changes.push({
                 start: node.property.start,
                 end: node.property.end,
-                node:'__uv$setSource(__uv).postMessage',
+                node:'__palladium$setSource(__palladium).postMessage',
             });
         };
 
 
-        if (!node.computed && node.property.name === 'eval' && type === 'rewrite' || node.property.name === '__uv$eval' && type === 'source') {
+        if (!node.computed && node.property.name === 'eval' && type === 'rewrite' || node.property.name === '__palladium$eval' && type === 'source') {
             data.changes.push({
                 start: node.property.start,
                 end: node.property.end,
-                node: type === 'rewrite' ? '__uv$setSource(__uv).__uv$eval' : 'eval'
+                node: type === 'rewrite' ? '__palladium$setSource(__palladium).__palladium$eval' : 'eval'
             });
         };
 
-        if (!node.computed && node.property.name === '__uv$setSource' && type === 'source' && node.parent.type === esotope_hammerhead__WEBPACK_IMPORTED_MODULE_0__.Syntax.CallExpression) {
+        if (!node.computed && node.property.name === '__palladium$setSource' && type === 'source' && node.parent.type === esotope_hammerhead__WEBPACK_IMPORTED_MODULE_0__.Syntax.CallExpression) {
             const { parent, property } = node; 
             data.changes.push({
                 start: property.start - 1,
@@ -35991,7 +35991,7 @@ function identifier(ctx) {
         data.changes.push({
             start: node.start,
             end: node.end,
-            node: '__uv.$get(' + node.name + ')'
+            node: '__palladium.$get(' + node.name + ')'
         });
     });
 };
@@ -36007,7 +36007,7 @@ function wrapEval(ctx) {
         const [ script ] = node.arguments;
     
         data.changes.push({
-            node: '__uv.js.rewrite(',
+            node: '__palladium.js.rewrite(',
             start: script.start,
             end: script.start,
         })
@@ -36040,7 +36040,7 @@ function dynamicImport(ctx) {
     js.on(esotope_hammerhead__WEBPACK_IMPORTED_MODULE_0__.Syntax.ImportExpression, (node, data, type) => {
         if (type !== 'rewrite') return false;
         data.changes.push({
-            node: '__uv.rewriteUrl(',
+            node: '__palladium.rewriteUrl(',
             start: node.source.start,
             end: node.source.start,
         })
@@ -36113,7 +36113,7 @@ function unwrap(ctx) {
 function isWrapped(node) {
     if (node.type !== esotope_hammerhead__WEBPACK_IMPORTED_MODULE_0__.Syntax.MemberExpression) return false;
     if (node.property.name === 'rewrite' && isWrapped(node.object)) return true;
-    if (node.object.type !== esotope_hammerhead__WEBPACK_IMPORTED_MODULE_0__.Syntax.Identifier || node.object.name !== '__uv') return false;
+    if (node.object.type !== esotope_hammerhead__WEBPACK_IMPORTED_MODULE_0__.Syntax.Identifier || node.object.name !== '__palladium') return false;
     if (!['js', '$get', '$wrap', 'rewriteUrl'].includes(node.property.name)) return false;
     return true;
 };
@@ -36479,7 +36479,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-class UVClient extends _events_js__WEBPACK_IMPORTED_MODULE_16__["default"] {
+class PalladiumClient extends _events_js__WEBPACK_IMPORTED_MODULE_16__["default"] {
     constructor(window = self, worker = !window.window) {
         super();
         this.window = window;
@@ -36567,8 +36567,8 @@ class UVClient extends _events_js__WEBPACK_IMPORTED_MODULE_16__["default"] {
     };
 };
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (UVClient);
-if (typeof self === 'object') self.UVClient = UVClient;
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (PalladiumClient);
+if (typeof self === 'object') self.PalladiumClient = PalladiumClient;
 
 /***/ }),
 /* 154 */
@@ -38404,13 +38404,13 @@ class LocationApi extends _events_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
     };
     overrideWorkerLocation(parse) {
         if (!this.WorkerLocation) return false;
-        const uv = this;
+        const palladium = this;
         
         for (const key of this.keys) {
             this.ctx.overrideDescriptor(this.workerLocProto, key, {
                 get: (target, that) => {
                     return parse(
-                        uv.href.get.call(this.location)
+                        palladium.href.get.call(this.location)
                     )[key]
                 },
             });
@@ -39138,7 +39138,7 @@ __webpack_require__.r(__webpack_exports__);
 const valid_chars = "!#$%&'*+-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ^_`abcdefghijklmnopqrstuvwxyz|~";
 const reserved_chars = "%";
 
-class Ultraviolet {
+class Palladium {
     constructor(options = {}) {
         this.prefix = options.prefix || '/service/';
         this.urlRegex = /^(#|about:|data:|mailto:)/
@@ -39150,11 +39150,11 @@ class Ultraviolet {
         this.meta = options.meta || {};
         this.meta.base ||= undefined;
         this.meta.origin ||= '';
-        this.bundleScript = options.bundle || '/uv.bundle.js';
-        this.handlerScript = options.handler || '/uv.handler.js';
-        this.configScript = options.config || '/uv.config.js';
+        this.bundleScript = options.bundle || '/palladium.bundle.js';
+        this.handlerScript = options.handler || '/palladium.handler.js';
+        this.configScript = options.config || '/palladium.config.js';
         this.meta.url ||= this.meta.base || '';
-        this.codec = Ultraviolet.codec;
+        this.codec = Palladium.codec;
         this.html = new _html_js__WEBPACK_IMPORTED_MODULE_0__["default"](this);
         this.css = new _css_js__WEBPACK_IMPORTED_MODULE_1__["default"](this);
         this.js = new _js_js__WEBPACK_IMPORTED_MODULE_2__["default"](this);
@@ -39162,9 +39162,9 @@ class Ultraviolet {
         this.openDB = this.constructor.openDB;
         this.Bowser = this.constructor.Bowser;
         this.client = typeof self !== 'undefined' ? new _client_index_js__WEBPACK_IMPORTED_MODULE_12__["default"]((options.window || self)) : null;
-        this.master = '__uv';
-        this.dataPrefix = '__uv$';
-        this.attributePrefix = '__uv';
+        this.master = '__palladium';
+        this.dataPrefix = '__palladium$';
+        this.attributePrefix = '__palladium';
         this.createHtmlInject = _rewrite_html_js__WEBPACK_IMPORTED_MODULE_7__.createInjection;
         this.attrs = {
             isUrl: _rewrite_html_js__WEBPACK_IMPORTED_MODULE_7__.isUrl,
@@ -39173,7 +39173,7 @@ class Ultraviolet {
             isSrcset: _rewrite_html_js__WEBPACK_IMPORTED_MODULE_7__.isSrcset,
             isStyle: _rewrite_html_js__WEBPACK_IMPORTED_MODULE_7__.isStyle,
         };
-        if (!this.vanilla) this.implementUVMiddleware();
+        if (!this.vanilla) this.implementPalladiumMiddleware();
         this.cookie = {
             validateCookie: _cookie_js__WEBPACK_IMPORTED_MODULE_6__.validateCookie,
             db: () => {
@@ -39255,7 +39255,7 @@ class Ultraviolet {
     
         return result;
     }
-    implementUVMiddleware() {
+    implementPalladiumMiddleware() {
         // HTML
         (0,_rewrite_html_js__WEBPACK_IMPORTED_MODULE_7__.attributes)(this);
         (0,_rewrite_html_js__WEBPACK_IMPORTED_MODULE_7__.text)(this);
@@ -39296,8 +39296,8 @@ class Ultraviolet {
     static Bowser = bowser__WEBPACK_IMPORTED_MODULE_13__;
 };
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Ultraviolet);
-if (typeof self === 'object') self.Ultraviolet = Ultraviolet;
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Palladium);
+if (typeof self === 'object') self.Palladium = Palladium;
 })();
 
 /******/ })()
