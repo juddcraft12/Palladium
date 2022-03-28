@@ -44,7 +44,7 @@ class PalladiumServiceWorker extends EventEmitter {
             ],
         };  
         this.config = config;
-        this.browser = Ultraviolet.Bowser.getParser(self.navigator.userAgent).getBrowserName();
+        this.browser = Palladium.Bowser.getParser(self.navigator.userAgent).getBrowserName();
 
         if (this.browser === 'Firefox') {
             this.headers.forward.push('user-agent');
@@ -57,41 +57,41 @@ class PalladiumServiceWorker extends EventEmitter {
         };
         try {
 
-            const ultraviolet = new Ultraviolet(this.config);
+            const palladium = new Palladium(this.config);
 
             if (typeof this.config.construct === 'function') {
-                this.config.construct(ultraviolet, 'service');
+                this.config.construct(palladium, 'service');
             };
 
-            const db = await ultraviolet.cookie.db();
+            const db = await palladium.cookie.db();
 
-            ultraviolet.meta.origin = location.origin;
-            ultraviolet.meta.base = ultraviolet.meta.url = new URL(ultraviolet.sourceUrl(request.url));
+            palladium.meta.origin = location.origin;
+            palladium.meta.base = palladium.meta.url = new URL(palladium.sourceUrl(request.url));
 
             const requestCtx = new RequestContext(
                 request, 
                 this, 
-                ultraviolet, 
+                palladium, 
                 !this.method.empty.includes(request.method.toUpperCase()) ? await request.blob() : null
             );
 
-            if (ultraviolet.meta.url.protocol === 'blob:') {
+            if (palladium.meta.url.protocol === 'blob:') {
                 requestCtx.blob = true;
                 requestCtx.base = requestCtx.url = new URL(requestCtx.url.pathname);
             };
 
             if (request.referrer && request.referrer.startsWith(location.origin)) {
-                const referer = new URL(ultraviolet.sourceUrl(request.referrer));
+                const referer = new URL(palladium.sourceUrl(request.referrer));
 
-                if (requestCtx.headers.origin || ultraviolet.meta.url.origin !== referer.origin && request.mode === 'cors') {
+                if (requestCtx.headers.origin || palladium.meta.url.origin !== referer.origin && request.mode === 'cors') {
                     requestCtx.headers.origin = referer.origin;
                 };
 
                 requestCtx.headers.referer = referer.href;
             };
 
-            const cookies = await ultraviolet.cookie.getCookies(db) || [];
-            const cookieStr = ultraviolet.cookie.serialize(cookies, ultraviolet.meta, false);
+            const cookies = await palladium.cookie.getCookies(db) || [];
+            const cookieStr = palladium.cookie.serialize(cookies, palladium.meta, false);
 
             if (this.browser === 'Firefox' && !(request.destination === 'iframe' || request.destination === 'document')) {
                 requestCtx.forward.shift();
@@ -123,16 +123,16 @@ class PalladiumServiceWorker extends EventEmitter {
             }; 
             
             if (responseCtx.headers.location) {
-                responseCtx.headers.location = ultraviolet.rewriteUrl(responseCtx.headers.location);
+                responseCtx.headers.location = palladium.rewriteUrl(responseCtx.headers.location);
             };
 
             if (responseCtx.headers['set-cookie']) {
-                Promise.resolve(ultraviolet.cookie.setCookies(responseCtx.headers['set-cookie'], db, ultraviolet.meta)).then(() => {
+                Promise.resolve(palladium.cookie.setCookies(responseCtx.headers['set-cookie'], db, palladium.meta)).then(() => {
                     self.clients.matchAll().then(function (clients){
                         clients.forEach(function(client){
                             client.postMessage({
                                 msg: 'updateCookies',
-                                url: ultraviolet.meta.url.href,
+                                url: palladium.meta.url.href,
                             });
                         });
                     });
@@ -145,27 +145,27 @@ class PalladiumServiceWorker extends EventEmitter {
                     case 'script':
                     case 'worker':
                         responseCtx.body = `if (!self.__palladium && self.importScripts) importScripts('${__palladium$config.bundle}', '${__palladium$config.config}', '${__palladium$config.handler}');\n`;
-                        responseCtx.body += ultraviolet.js.rewrite(
+                        responseCtx.body += palladium.js.rewrite(
                             await response.text()
                         );
                         break;
                     case 'style':
-                        responseCtx.body = ultraviolet.rewriteCSS(
+                        responseCtx.body = palladium.rewriteCSS(
                             await response.text()
                         ); 
                         break;
                 case 'iframe':
                 case 'document':
-                        if (isHtml(ultraviolet.meta.url, (responseCtx.headers['content-type'] || ''))) {
-                            responseCtx.body = ultraviolet.rewriteHtml(
+                        if (isHtml(palladium.meta.url, (responseCtx.headers['content-type'] || ''))) {
+                            responseCtx.body = palladium.rewriteHtml(
                                 await response.text(), 
                                 { 
                                     document: true ,
-                                    injectHead: ultraviolet.createHtmlInject(
+                                    injectHead: palladium.createHtmlInject(
                                         this.config.handler, 
                                         this.config.bundle, 
                                         this.config.config,
-                                        ultraviolet.cookie.serialize(cookies, ultraviolet.meta, true), 
+                                        palladium.cookie.serialize(cookies, palladium.meta, true), 
                                         request.referrer
                                     )
                                 }
@@ -211,7 +211,7 @@ class PalladiumServiceWorker extends EventEmitter {
     get address() {
         return this.addresses[Math.floor(Math.random() * this.addresses.length)];
     };
-    static Ultraviolet = Ultraviolet;
+    static Palladium = Palladium;
 };
 
 self.PalladiumServiceWorker = PalladiumServiceWorker;
@@ -227,7 +227,7 @@ class ResponseContext {
         };
         this.request = request;
         this.raw = response;
-        this.ultraviolet = request.ultraviolet;
+        this.palladium = request.palladium;
         this.headers = headers;
         this.status = status;
         this.statusText = statusText;
@@ -245,8 +245,8 @@ class ResponseContext {
 };
 
 class RequestContext {
-    constructor(request, worker, ultraviolet, body = null) {
-        this.ultraviolet = ultraviolet;
+    constructor(request, worker, palladium, body = null) {
+        this.palladium = palladium;
         this.request = request;
         this.headers = Object.fromEntries([...request.headers.entries()]);
         this.method = request.method;
@@ -276,21 +276,21 @@ class RequestContext {
         });
     };
     get url() {
-        return this.ultraviolet.meta.url;
+        return this.palladium.meta.url;
     };
     set url(val) {
-        this.ultraviolet.meta.url = val;
+        this.palladium.meta.url = val;
     };
     get base() {
-        return this.ultraviolet.meta.base;
+        return this.palladium.meta.base;
     };
     set base(val) {
-        this.ultraviolet.meta.base = val;
+        this.palladium.meta.base = val;
     };
 }
 
 function isHtml(url, contentType = '') {
-    return (Ultraviolet.mime.contentType((contentType  || url.pathname)) || 'text/html').split(';')[0] === 'text/html';
+    return (Palladium.mime.contentType((contentType  || url.pathname)) || 'text/html').split(';')[0] === 'text/html';
 };
 
 class HookEvent {

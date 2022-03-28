@@ -3,7 +3,7 @@ if (!self.__palladium) {
 };
 
 async function __palladiumHook(window, config = {}, bare = '/bare/') {
-    if ('__palladium' in window && window.__palladium instanceof Ultraviolet) return false;
+    if ('__palladium' in window && window.__palladium instanceof Palladium) return false;
 
     if (window.document && !!window.window) {
         window.document.querySelectorAll("script[__palladium-script]").forEach(node => node.remove())
@@ -12,7 +12,7 @@ async function __palladiumHook(window, config = {}, bare = '/bare/') {
     const worker = !window.window;
     const master = '__palladium';
     const methodPrefix = '__palladium$';
-    const __palladium = new Ultraviolet({
+    const __palladium = new Palladium({
         ...config,
         window,
     });
@@ -158,7 +158,7 @@ async function __palladiumHook(window, config = {}, bare = '/bare/') {
         methodPrefix + 'modifiedStyle',
         methodPrefix + 'config',
         methodPrefix + 'dispatched',
-        'Ultraviolet',
+        'Palladium',
         '__palladiumHook',
     ];
 
