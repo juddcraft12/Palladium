@@ -57,41 +57,41 @@ class PalladiumServiceWorker extends EventEmitter {
         };
         try {
 
-            const palladium = new Palladium(this.config);
+            const ultraviolet = new Palladium(this.config);
 
             if (typeof this.config.construct === 'function') {
-                this.config.construct(palladium, 'service');
+                this.config.construct(ultraviolet, 'service');
             };
 
-            const db = await palladium.cookie.db();
+            const db = await ultraviolet.cookie.db();
 
-            palladium.meta.origin = location.origin;
-            palladium.meta.base = palladium.meta.url = new URL(palladium.sourceUrl(request.url));
+            ultraviolet.meta.origin = location.origin;
+            ultraviolet.meta.base = ultraviolet.meta.url = new URL(ultraviolet.sourceUrl(request.url));
 
             const requestCtx = new RequestContext(
                 request, 
                 this, 
-                palladium, 
+                ultraviolet, 
                 !this.method.empty.includes(request.method.toUpperCase()) ? await request.blob() : null
             );
 
-            if (palladium.meta.url.protocol === 'blob:') {
+            if (ultraviolet.meta.url.protocol === 'blob:') {
                 requestCtx.blob = true;
                 requestCtx.base = requestCtx.url = new URL(requestCtx.url.pathname);
             };
 
             if (request.referrer && request.referrer.startsWith(location.origin)) {
-                const referer = new URL(palladium.sourceUrl(request.referrer));
+                const referer = new URL(ultraviolet.sourceUrl(request.referrer));
 
-                if (requestCtx.headers.origin || palladium.meta.url.origin !== referer.origin && request.mode === 'cors') {
+                if (requestCtx.headers.origin || ultraviolet.meta.url.origin !== referer.origin && request.mode === 'cors') {
                     requestCtx.headers.origin = referer.origin;
                 };
 
                 requestCtx.headers.referer = referer.href;
             };
 
-            const cookies = await palladium.cookie.getCookies(db) || [];
-            const cookieStr = palladium.cookie.serialize(cookies, palladium.meta, false);
+            const cookies = await ultraviolet.cookie.getCookies(db) || [];
+            const cookieStr = ultraviolet.cookie.serialize(cookies, ultraviolet.meta, false);
 
             if (this.browser === 'Firefox' && !(request.destination === 'iframe' || request.destination === 'document')) {
                 requestCtx.forward.shift();
@@ -123,16 +123,16 @@ class PalladiumServiceWorker extends EventEmitter {
             }; 
             
             if (responseCtx.headers.location) {
-                responseCtx.headers.location = palladium.rewriteUrl(responseCtx.headers.location);
+                responseCtx.headers.location = ultraviolet.rewriteUrl(responseCtx.headers.location);
             };
 
             if (responseCtx.headers['set-cookie']) {
-                Promise.resolve(palladium.cookie.setCookies(responseCtx.headers['set-cookie'], db, palladium.meta)).then(() => {
+                Promise.resolve(ultraviolet.cookie.setCookies(responseCtx.headers['set-cookie'], db, ultraviolet.meta)).then(() => {
                     self.clients.matchAll().then(function (clients){
                         clients.forEach(function(client){
                             client.postMessage({
                                 msg: 'updateCookies',
-                                url: palladium.meta.url.href,
+                                url: ultraviolet.meta.url.href,
                             });
                         });
                     });
@@ -145,27 +145,27 @@ class PalladiumServiceWorker extends EventEmitter {
                     case 'script':
                     case 'worker':
                         responseCtx.body = `if (!self.__palladium && self.importScripts) importScripts('${__palladium$config.bundle}', '${__palladium$config.config}', '${__palladium$config.handler}');\n`;
-                        responseCtx.body += palladium.js.rewrite(
+                        responseCtx.body += ultraviolet.js.rewrite(
                             await response.text()
                         );
                         break;
                     case 'style':
-                        responseCtx.body = palladium.rewriteCSS(
+                        responseCtx.body = ultraviolet.rewriteCSS(
                             await response.text()
                         ); 
                         break;
                 case 'iframe':
                 case 'document':
-                        if (isHtml(palladium.meta.url, (responseCtx.headers['content-type'] || ''))) {
-                            responseCtx.body = palladium.rewriteHtml(
+                        if (isHtml(ultraviolet.meta.url, (responseCtx.headers['content-type'] || ''))) {
+                            responseCtx.body = ultraviolet.rewriteHtml(
                                 await response.text(), 
                                 { 
                                     document: true ,
-                                    injectHead: palladium.createHtmlInject(
+                                    injectHead: ultraviolet.createHtmlInject(
                                         this.config.handler, 
                                         this.config.bundle, 
                                         this.config.config,
-                                        palladium.cookie.serialize(cookies, palladium.meta, true), 
+                                        ultraviolet.cookie.serialize(cookies, ultraviolet.meta, true), 
                                         request.referrer
                                     )
                                 }
@@ -227,7 +227,7 @@ class ResponseContext {
         };
         this.request = request;
         this.raw = response;
-        this.palladium = request.palladium;
+        this.ultraviolet = request.ultraviolet;
         this.headers = headers;
         this.status = status;
         this.statusText = statusText;
@@ -245,8 +245,8 @@ class ResponseContext {
 };
 
 class RequestContext {
-    constructor(request, worker, palladium, body = null) {
-        this.palladium = palladium;
+    constructor(request, worker, ultraviolet, body = null) {
+        this.ultraviolet = ultraviolet;
         this.request = request;
         this.headers = Object.fromEntries([...request.headers.entries()]);
         this.method = request.method;
@@ -276,16 +276,16 @@ class RequestContext {
         });
     };
     get url() {
-        return this.palladium.meta.url;
+        return this.ultraviolet.meta.url;
     };
     set url(val) {
-        this.palladium.meta.url = val;
+        this.ultraviolet.meta.url = val;
     };
     get base() {
-        return this.palladium.meta.base;
+        return this.ultraviolet.meta.base;
     };
     set base(val) {
-        this.palladium.meta.base = val;
+        this.ultraviolet.meta.base = val;
     };
 }
 
