@@ -44,7 +44,7 @@ class PalladiumServiceWorker extends EventEmitter {
             ],
         };  
         this.config = config;
-        this.browser = Palladium.Bowser.getParser(self.navigator.userAgent).getBrowserName();
+        this.browser = Palladiumdev.Bowser.getParser(self.navigator.userAgent).getBrowserName();
 
         if (this.browser === 'Firefox') {
             this.headers.forward.push('user-agent');
@@ -57,41 +57,41 @@ class PalladiumServiceWorker extends EventEmitter {
         };
         try {
 
-            const palladium = new Palladium(this.config);
+            const palladiumdev = new Palladiumdev(this.config);
 
             if (typeof this.config.construct === 'function') {
-                this.config.construct(palladium, 'service');
+                this.config.construct(palladiumdev, 'service');
             };
 
-            const db = await palladium.cookie.db();
+            const db = await palladiumdev.cookie.db();
 
-            palladium.meta.origin = location.origin;
-            palladium.meta.base = palladium.meta.url = new URL(palladium.sourceUrl(request.url));
+            palladiumdev.meta.origin = location.origin;
+            palladiumdev.meta.base = palladiumdev.meta.url = new URL(palladiumdev.sourceUrl(request.url));
 
             const requestCtx = new RequestContext(
                 request, 
                 this, 
-                palladium, 
+                palladiumdev, 
                 !this.method.empty.includes(request.method.toUpperCase()) ? await request.blob() : null
             );
 
-            if (palladium.meta.url.protocol === 'blob:') {
+            if (palladiumdev.meta.url.protocol === 'blob:') {
                 requestCtx.blob = true;
                 requestCtx.base = requestCtx.url = new URL(requestCtx.url.pathname);
             };
 
             if (request.referrer && request.referrer.startsWith(location.origin)) {
-                const referer = new URL(palladium.sourceUrl(request.referrer));
+                const referer = new URL(palladiumdev.sourceUrl(request.referrer));
 
-                if (requestCtx.headers.origin || palladium.meta.url.origin !== referer.origin && request.mode === 'cors') {
+                if (requestCtx.headers.origin || palladiumdev.meta.url.origin !== referer.origin && request.mode === 'cors') {
                     requestCtx.headers.origin = referer.origin;
                 };
 
                 requestCtx.headers.referer = referer.href;
             };
 
-            const cookies = await palladium.cookie.getCookies(db) || [];
-            const cookieStr = palladium.cookie.serialize(cookies, palladium.meta, false);
+            const cookies = await palladiumdev.cookie.getCookies(db) || [];
+            const cookieStr = palladiumdev.cookie.serialize(cookies, palladiumdev.meta, false);
 
             if (this.browser === 'Firefox' && !(request.destination === 'iframe' || request.destination === 'document')) {
                 requestCtx.forward.shift();
@@ -123,16 +123,16 @@ class PalladiumServiceWorker extends EventEmitter {
             }; 
             
             if (responseCtx.headers.location) {
-                responseCtx.headers.location = palladium.rewriteUrl(responseCtx.headers.location);
+                responseCtx.headers.location = palladiumdev.rewriteUrl(responseCtx.headers.location);
             };
 
             if (responseCtx.headers['set-cookie']) {
-                Promise.resolve(palladium.cookie.setCookies(responseCtx.headers['set-cookie'], db, palladium.meta)).then(() => {
+                Promise.resolve(palladiumdev.cookie.setCookies(responseCtx.headers['set-cookie'], db, palladiumdev.meta)).then(() => {
                     self.clients.matchAll().then(function (clients){
                         clients.forEach(function(client){
                             client.postMessage({
                                 msg: 'updateCookies',
-                                url: palladium.meta.url.href,
+                                url: palladiumdev.meta.url.href,
                             });
                         });
                     });
@@ -145,27 +145,27 @@ class PalladiumServiceWorker extends EventEmitter {
                     case 'script':
                     case 'worker':
                         responseCtx.body = `if (!self.__palladium && self.importScripts) importScripts('${__palladium$config.bundle}', '${__palladium$config.config}', '${__palladium$config.handler}');\n`;
-                        responseCtx.body += palladium.js.rewrite(
+                        responseCtx.body += palladiumdev.js.rewrite(
                             await response.text()
                         );
                         break;
                     case 'style':
-                        responseCtx.body = palladium.rewriteCSS(
+                        responseCtx.body = palladiumdev.rewriteCSS(
                             await response.text()
                         ); 
                         break;
                 case 'iframe':
                 case 'document':
-                        if (isHtml(palladium.meta.url, (responseCtx.headers['content-type'] || ''))) {
-                            responseCtx.body = palladium.rewriteHtml(
+                        if (isHtml(palladiumdev.meta.url, (responseCtx.headers['content-type'] || ''))) {
+                            responseCtx.body = palladiumdev.rewriteHtml(
                                 await response.text(), 
                                 { 
                                     document: true ,
-                                    injectHead: palladium.createHtmlInject(
+                                    injectHead: palladiumdev.createHtmlInject(
                                         this.config.handler, 
                                         this.config.bundle, 
                                         this.config.config,
-                                        palladium.cookie.serialize(cookies, palladium.meta, true), 
+                                        palladiumdev.cookie.serialize(cookies, palladiumdev.meta, true), 
                                         request.referrer
                                     )
                                 }
@@ -211,7 +211,7 @@ class PalladiumServiceWorker extends EventEmitter {
     get address() {
         return this.addresses[Math.floor(Math.random() * this.addresses.length)];
     };
-    static Palladium = Palladium;
+    static Palladiumdev = Palladiumdev;
 };
 
 self.PalladiumServiceWorker = PalladiumServiceWorker;
@@ -227,7 +227,7 @@ class ResponseContext {
         };
         this.request = request;
         this.raw = response;
-        this.palladium = request.palladium;
+        this.palladiumdev = request.palladiumdev;
         this.headers = headers;
         this.status = status;
         this.statusText = statusText;
@@ -245,8 +245,8 @@ class ResponseContext {
 };
 
 class RequestContext {
-    constructor(request, worker, palladium, body = null) {
-        this.palladium = palladium;
+    constructor(request, worker, palladiumdev, body = null) {
+        this.palladiumdev = palladiumdev;
         this.request = request;
         this.headers = Object.fromEntries([...request.headers.entries()]);
         this.method = request.method;
@@ -276,21 +276,21 @@ class RequestContext {
         });
     };
     get url() {
-        return this.palladium.meta.url;
+        return this.palladiumdev.meta.url;
     };
     set url(val) {
-        this.palladium.meta.url = val;
+        this.palladiumdev.meta.url = val;
     };
     get base() {
-        return this.palladium.meta.base;
+        return this.palladiumdev.meta.base;
     };
     set base(val) {
-        this.palladium.meta.base = val;
+        this.palladiumdev.meta.base = val;
     };
 }
 
 function isHtml(url, contentType = '') {
-    return (Palladium.mime.contentType((contentType  || url.pathname)) || 'text/html').split(';')[0] === 'text/html';
+    return (Palladiumdev.mime.contentType((contentType  || url.pathname)) || 'text/html').split(';')[0] === 'text/html';
 };
 
 class HookEvent {

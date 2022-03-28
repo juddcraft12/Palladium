@@ -39138,7 +39138,7 @@ __webpack_require__.r(__webpack_exports__);
 const valid_chars = "!#$%&'*+-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ^_`abcdefghijklmnopqrstuvwxyz|~";
 const reserved_chars = "%";
 
-class Palladium {
+class Palladiumdev {
     constructor(options = {}) {
         this.prefix = options.prefix || '/service/';
         this.urlRegex = /^(#|about:|data:|mailto:)/
@@ -39154,7 +39154,7 @@ class Palladium {
         this.handlerScript = options.handler || '/palladium.handler.js';
         this.configScript = options.config || '/palladium.config.js';
         this.meta.url ||= this.meta.base || '';
-        this.codec = Palladium.codec;
+        this.codec = Palladiumdev.codec;
         this.html = new _html_js__WEBPACK_IMPORTED_MODULE_0__["default"](this);
         this.css = new _css_js__WEBPACK_IMPORTED_MODULE_1__["default"](this);
         this.js = new _js_js__WEBPACK_IMPORTED_MODULE_2__["default"](this);
@@ -39296,8 +39296,8 @@ class Palladium {
     static Bowser = bowser__WEBPACK_IMPORTED_MODULE_13__;
 };
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Palladium);
-if (typeof self === 'object') self.Palladium = Palladium;
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Palladiumdev);
+if (typeof self === 'object') self.Palladiumdev = Palladiumdev;
 })();
 
 /******/ })()
