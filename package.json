@@ -1,6 +1,10 @@
 {
+    "dependencies": {
+    "bare-server-node": "github:tomphttp/bare-server-node",
+    "node-static": "^0.7.11"
+  },
   "name": "palladium-app",
-  "version": "1.0.0",
+  "version": "1.3.0",
   "description": "Palladium instance",
   "main": "index.js",
   "scripts": {
