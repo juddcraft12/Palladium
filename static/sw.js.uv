@@ -1,6 +1,6 @@
-importScripts('./palladium/palladium.sw.js');
+importScripts('./uv/uv.sw.js');
 
-const sw = new PalladiumServiceWorker();
+const sw = new UVServiceWorker();
 
 self.addEventListener('fetch', event =>
     event.respondWith(
